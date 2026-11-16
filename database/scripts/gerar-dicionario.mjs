@@ -2,8 +2,8 @@
 // AproVest - Gera o Dicionário de Dados e o DER (Mermaid) a partir do
 // script 01_aprovest_banco.sql, garantindo que a documentação reflita
 // exatamente o banco implementado no SQL Server.
-// Uso: node database/scripts/gerar-dicionario.mjs
-// Saídas: docs/DICIONARIO_DE_DADOS.md e docs/diagramas/der.mmd
+// Uso: node database/scripts/gerar-dicionario.mjs [pasta-de-saida]   (padrão: docs/ na raiz do projeto)
+// Saídas: <pasta>/DICIONARIO_DE_DADOS.md e <pasta>/diagramas/der*.mmd
 // =====================================================================
 import fs from "node:fs";
 import path from "node:path";
@@ -11,7 +11,8 @@ import { fileURLToPath } from "node:url";
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const sqlTexto = fs.readFileSync(path.join(RAIZ, "database", "01_aprovest_banco.sql"), "utf8");
-fs.mkdirSync(path.join(RAIZ, "docs", "diagramas"), { recursive: true });
+const SAIDA = path.resolve(process.argv[2] || path.join(RAIZ, "docs"));
+fs.mkdirSync(path.join(SAIDA, "diagramas"), { recursive: true });
 
 const tabelas = [];
 const regexTabela = /CREATE TABLE (\w+) \(([\s\S]*?)\n\);/g;
@@ -77,6 +78,7 @@ const DESCRICOES = {
   ParecerConteudo: "Pareceres de professores sobre questões (UC029).",
   RemuneracaoCorretor: "Valores registrados por correção humana concluída (UC040).",
   EstadoIA: "Estado operacional do serviço de IA (pausado/ativo - UC042).",
+  MensagemContato: "Mensagens enviadas pela página pública Fale Conosco e tratadas pelo administrador (RF20 - UC048 e UC049).",
 };
 
 let md = "# Dicionário de Dados - AproVest (Microsoft SQL Server)\n\n";
@@ -92,7 +94,7 @@ for (const t of tabelas) {
   if (t.uniques.length) md += `\nUnicidade (UK): ${t.uniques.map((u) => `(${u})`).join(", ")}\n`;
   md += "\n";
 }
-fs.writeFileSync(path.join(RAIZ, "docs", "DICIONARIO_DE_DADOS.md"), md, "utf8");
+fs.writeFileSync(path.join(SAIDA, "DICIONARIO_DE_DADOS.md"), md, "utf8");
 
 // ---------- DER em Mermaid (erDiagram) ----------
 const tipoMermaid = (t) => t.replace(/\(.*\)/, "").toLowerCase();
@@ -119,8 +121,8 @@ function gerarDer(nomes) {
 const MODULOS = {
   "der-1-usuarios-e-acesso": ["Usuario", "tokens", "TokenRecuperacao", "Assinatura", "CarteiraCredito", "MovimentoCredito", "Pagamento", "Notificacao", "SolicitacaoLgpd", "BolsaMerito"],
   "der-2-questoes-e-estudo": ["Usuario", "Vestibular", "Disciplina", "Topico", "Questao", "Alternativa", "QuestaoTopico", "SessaoEstudo", "SessaoQuestao", "Resposta", "Proficiencia", "Revisao"],
-  "der-3-redacao-e-conteudo": ["Usuario", "Vestibular", "Disciplina", "Questao", "TemaRedacao", "Redacao", "AvaliacaoRedacao", "NotaCriterio", "RemuneracaoCorretor", "ParecerConteudo", "Material", "LeituraMaterial", "EstadoIA"],
+  "der-3-redacao-e-conteudo": ["Usuario", "Vestibular", "Disciplina", "Questao", "TemaRedacao", "Redacao", "AvaliacaoRedacao", "NotaCriterio", "RemuneracaoCorretor", "ParecerConteudo", "Material", "LeituraMaterial", "EstadoIA", "MensagemContato"],
 };
-fs.writeFileSync(path.join(RAIZ, "docs", "diagramas", "der.mmd"), gerarDer(null), "utf8");
-for (const [nome, lista] of Object.entries(MODULOS)) fs.writeFileSync(path.join(RAIZ, "docs", "diagramas", `${nome}.mmd`), gerarDer(lista), "utf8");
+fs.writeFileSync(path.join(SAIDA, "diagramas", "der.mmd"), gerarDer(null), "utf8");
+for (const [nome, lista] of Object.entries(MODULOS)) fs.writeFileSync(path.join(SAIDA, "diagramas", `${nome}.mmd`), gerarDer(lista), "utf8");
 console.log(`Tabelas: ${tabelas.length} | Relacionamentos: ${tabelas.reduce((s, t) => s + t.fks.length, 0)}`);
