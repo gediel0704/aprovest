@@ -1,0 +1,4 @@
+.seletor { display: inline-flex; gap: 0.3rem; padding: 0.3rem; border-radius: 14px; background: var(--av-superficie); border: 1px solid var(--av-borda); flex-wrap: wrap; }
+.opcao { border: none; background: transparent; color: var(--av-texto-suave); font-weight: 700; padding: 0.5rem 1rem; border-radius: 10px; display: inline-flex; gap: 0.45rem; align-items: center; transition: all 0.15s; }
+.opcao:hover { color: var(--av-texto); }
+.ativa { background: var(--av-primaria); color: #fff !important; box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3); }

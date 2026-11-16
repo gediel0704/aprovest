@@ -1,0 +1,6 @@
+.texto { line-height: 1.75; font-size: 1rem; overflow-wrap: anywhere; }
+.texto p { margin-bottom: 0.85rem; }
+.texto ul, .texto ol { padding-left: 1.3rem; margin-bottom: 0.9rem; }
+.texto li { margin-bottom: 0.3rem; }
+.subtitulo { font-size: 1.05rem; margin: 1.3rem 0 0.5rem; color: var(--av-primaria); }
+.imagem { display: block; max-width: 100%; border-radius: 10px; margin: 0.6rem 0; border: 1px solid var(--av-borda); background: #fff; }

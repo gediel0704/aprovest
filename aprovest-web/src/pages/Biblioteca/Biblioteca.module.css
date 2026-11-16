@@ -1,0 +1,2 @@
+.material { display: flex; flex-direction: column; text-decoration: none; color: var(--av-texto); }
+.fonte { margin-top: auto; color: var(--av-texto-suave); font-size: 0.75rem; }

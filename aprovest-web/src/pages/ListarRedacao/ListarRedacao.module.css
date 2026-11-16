@@ -1,0 +1,2 @@
+.cartao { display: flex; flex-direction: column; }
+.previa { color: var(--av-texto-suave); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }

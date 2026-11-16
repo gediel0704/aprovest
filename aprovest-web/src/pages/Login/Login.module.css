@@ -1,0 +1,22 @@
+.pagina { display: grid; grid-template-columns: 1fr 1.1fr; min-height: 100vh; }
+.lateral {
+  background: var(--av-gradiente); color: #fff; padding: 3rem; display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+.lateral::after { content: ""; position: absolute; width: 420px; height: 420px; border-radius: 50%; background: rgba(255, 255, 255, 0.08); right: -120px; bottom: -120px; }
+.lateral h2 { color: #fff; font-size: 2.3rem; line-height: 1.15; margin-bottom: 1.5rem; max-width: 420px; }
+.lateral ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.8rem; font-weight: 600; }
+.lateral li i { color: #fde68a; margin-right: 0.5rem; }
+.lateral small { opacity: 0.8; }
+.formulario { display: flex; align-items: center; justify-content: center; padding: 2rem 1.2rem; }
+.caixa { width: 100%; max-width: 430px; }
+.caixa h1 { font-size: 1.9rem; }
+.divisor { display: flex; align-items: center; gap: 1rem; margin: 1.4rem 0; color: var(--av-texto-suave); font-size: 0.85rem; }
+.divisor::before, .divisor::after { content: ""; flex: 1; height: 1px; background: var(--av-borda); }
+.forca { height: 6px; border-radius: 999px; background: var(--av-superficie-2); margin-top: 0.4rem; overflow: hidden; }
+.forca span { display: block; height: 100%; transition: width 0.3s, background 0.3s; }
+
+@media (max-width: 991.98px) {
+  .pagina { grid-template-columns: 1fr; }
+  .lateral { display: none; }
+}

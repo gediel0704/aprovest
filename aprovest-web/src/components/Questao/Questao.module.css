@@ -1,0 +1,23 @@
+.questao { font-size: 1.02rem; }
+.meta { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; margin-bottom: 1rem; }
+.numero { font-weight: 800; margin-right: 0.4rem; }
+.introducao { font-weight: 600; }
+.alternativas { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1.2rem; }
+.alternativa {
+  display: flex; align-items: flex-start; gap: 0.9rem; width: 100%; text-align: left; padding: 0.85rem 1rem;
+  border-radius: 14px; border: 2px solid var(--av-borda); background: var(--av-superficie); color: var(--av-texto);
+  transition: all 0.15s ease; line-height: 1.55;
+}
+.alternativa:hover:not(:disabled) { border-color: #a5b4fc; background: var(--av-superficie-2); }
+.alternativa:disabled { cursor: default; opacity: 1; }
+.letra { width: 32px; height: 32px; flex-shrink: 0; border-radius: 10px; background: var(--av-superficie-2); font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.textoAlt { padding-top: 0.2rem; overflow-wrap: anywhere; }
+.imagemAlt { display: block; max-width: 100%; margin-top: 0.4rem; border-radius: 8px; }
+.selecionada { border-color: var(--av-primaria); background: rgba(79, 70, 229, 0.07); }
+.selecionada .letra { background: var(--av-primaria); color: #fff; }
+.correta { border-color: var(--av-sucesso); background: rgba(16, 185, 129, 0.08); }
+.correta .letra { background: var(--av-sucesso); color: #fff; }
+.errada { border-color: var(--av-perigo); background: rgba(239, 68, 68, 0.07); }
+.errada .letra { background: var(--av-perigo); color: #fff; }
+.apagada { opacity: 0.6 !important; }
+.fonte { margin: 1.1rem 0 0; font-size: 0.82rem; color: var(--av-texto-suave); }

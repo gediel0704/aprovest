@@ -1,0 +1,4 @@
+# Copie para application-local.properties (ignorado pelo Git) e coloque a senha do seu SQL Server.
+spring.datasource.password=SUA_SENHA_DO_SQL_SERVER
+# Opcional: chave da Anthropic para a correção por IA (sem ela, usa o corretor offline)
+# app.ia.anthropic-api-key=sk-ant-...

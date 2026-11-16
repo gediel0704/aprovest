@@ -1,0 +1,9 @@
+.logo { display: inline-flex; align-items: center; gap: 0.55rem; text-decoration: none; color: var(--av-texto); }
+.marca {
+  width: 38px; height: 38px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--av-gradiente); color: #fff; font-size: 1.05rem; box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35);
+}
+.texto { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.03em; }
+.texto strong { font-weight: 800; background: var(--av-gradiente); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.claro { color: #fff; }
+.claro .texto strong { background: none; color: #fde68a; }

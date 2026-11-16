@@ -1,0 +1,7 @@
+.item { width: 100%; display: flex; gap: 1rem; align-items: center; padding: 0.9rem; border: none; background: none; border-radius: 14px; color: var(--av-texto); text-align: left; }
+.item:hover { background: var(--av-superficie-2); }
+.naoLida { background: rgba(79, 70, 229, 0.05); }
+.corpo { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.corpo span { color: var(--av-texto-suave); font-size: 0.9rem; }
+.corpo small { color: var(--av-texto-suave); font-size: 0.75rem; margin-top: 0.2rem; }
+.ponto { width: 10px; height: 10px; border-radius: 50%; background: var(--av-primaria); flex-shrink: 0; }

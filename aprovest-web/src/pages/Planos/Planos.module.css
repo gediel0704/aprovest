@@ -1,0 +1,8 @@
+.plano { display: flex; flex-direction: column; position: relative; padding: 2rem; }
+.plano ul { list-style: none; padding: 0; margin: 1.4rem 0 1.8rem; display: flex; flex-direction: column; gap: 0.7rem; }
+.plano li { display: flex; gap: 0.6rem; color: var(--av-texto-suave); }
+.plano li i { color: var(--av-sucesso); margin-top: 0.3rem; }
+.preco { font-size: 2.3rem; font-weight: 800; }
+.preco small { font-size: 0.85rem; color: var(--av-texto-suave); font-weight: 600; }
+.destaque { border: 2px solid var(--av-primaria); box-shadow: var(--av-sombra-forte); }
+.fita { position: absolute; top: -13px; right: 1.5rem; background: var(--av-gradiente); color: #fff; font-weight: 800; font-size: 0.75rem; padding: 0.3rem 0.8rem; border-radius: 999px; }

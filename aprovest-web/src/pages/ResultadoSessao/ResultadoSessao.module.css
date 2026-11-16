@@ -1,0 +1,10 @@
+.lista { max-height: 620px; overflow-y: auto; padding-right: 0.3rem; }
+.linha { width: 100%; display: flex; align-items: center; gap: 0.8rem; padding: 0.7rem 0.4rem; border: none; border-bottom: 1px solid var(--av-borda); background: none; color: var(--av-texto); text-align: left; }
+.linha:hover { background: var(--av-superficie-2); }
+.marca { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ok { background: rgba(16, 185, 129, 0.15); color: #059669; }
+.falha { background: rgba(239, 68, 68, 0.13); color: #dc2626; }
+.descricao { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.descricao small { color: var(--av-texto-suave); font-size: 0.75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.respostas { font-size: 0.85rem; color: var(--av-texto-suave); white-space: nowrap; }
+.detalhe { padding: 1rem; border-radius: 14px; background: var(--av-superficie-2); margin: 0.6rem 0 1rem; }

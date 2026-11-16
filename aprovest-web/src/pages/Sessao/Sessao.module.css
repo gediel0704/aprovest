@@ -1,0 +1,17 @@
+.barra { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; background: var(--av-fundo); padding: 0.7rem 0 1rem; }
+.progresso { flex: 1; min-width: 220px; }
+.cronometro { font-weight: 800; font-size: 1.2rem; padding: 0.5rem 1rem; border-radius: 12px; background: var(--av-superficie); border: 1px solid var(--av-borda); font-variant-numeric: tabular-nums; }
+.urgente { color: var(--av-perigo); border-color: var(--av-perigo); animation: pulsar 1s infinite; }
+.mapa { position: sticky; top: 90px; }
+.grade { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.4rem; }
+.celula { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--av-borda); background: var(--av-superficie); color: var(--av-texto); font-weight: 700; font-size: 0.85rem; }
+.feita { background: rgba(79, 70, 229, 0.14); border-color: transparent; color: var(--av-primaria); }
+.acerto { background: rgba(16, 185, 129, 0.18); border-color: transparent; color: #059669; }
+.erro { background: rgba(239, 68, 68, 0.15); border-color: transparent; color: #dc2626; }
+.atual { outline: 2px solid var(--av-primaria); outline-offset: 1px; }
+.legenda { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1rem; font-size: 0.78rem; color: var(--av-texto-suave); }
+.legenda span { display: flex; align-items: center; gap: 0.35rem; }
+.legenda i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; }
+@keyframes pulsar { 50% { opacity: 0.6; } }
+@media (max-width: 991.98px) { .mapa { position: static; } .grade { grid-template-columns: repeat(10, 1fr); } }
+@media (max-width: 575.98px) { .grade { grid-template-columns: repeat(6, 1fr); } }

@@ -1,0 +1,4 @@
+.explicacao { display: flex; gap: 1.1rem; align-items: flex-start; }
+.explicacao ul { padding-left: 1.1rem; color: var(--av-texto-suave); }
+.opcao { display: flex; flex-direction: column; }
+.opcao h3 { margin-bottom: 0.2rem; }

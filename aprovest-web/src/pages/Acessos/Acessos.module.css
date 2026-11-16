@@ -1,0 +1,13 @@
+.creditos { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 1rem; border-radius: 14px; background: var(--av-superficie-2); }
+.creditos > div:first-child { display: flex; align-items: center; gap: 0.6rem; }
+.creditos i { color: var(--av-destaque); font-size: 1.3rem; }
+.creditos strong { font-size: 1.5rem; }
+.creditos span { color: var(--av-texto-suave); font-size: 0.85rem; }
+.item { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.7rem 0; border-bottom: 1px solid var(--av-borda); }
+.item:last-child { border-bottom: none; }
+.item > span:first-child { display: flex; flex-direction: column; }
+.item small { color: var(--av-texto-suave); font-size: 0.76rem; }
+.resumo { display: flex; align-items: center; gap: 0.9rem; padding: 1rem; border-radius: 14px; background: var(--av-superficie-2); }
+.resumo > i { font-size: 1.4rem; color: var(--av-primaria); }
+.resumo div { display: flex; flex-direction: column; }
+.resumo small { color: var(--av-texto-suave); font-size: 0.78rem; }

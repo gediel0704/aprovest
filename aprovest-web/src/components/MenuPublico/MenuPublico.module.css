@@ -1,0 +1,8 @@
+.navbar {
+  position: sticky; top: 0; z-index: 1020; padding: 0.9rem 0;
+  background: color-mix(in srgb, var(--av-fundo) 82%, transparent);
+  backdrop-filter: blur(12px); border-bottom: 1px solid var(--av-borda);
+}
+.navbar :global(.navbar-toggler) { border: 1px solid var(--av-borda); color: var(--av-texto); border-radius: 12px; padding: 0.45rem 0.75rem; }
+.link { font-weight: 600; color: var(--av-texto-suave) !important; border-radius: 10px; padding: 0.5rem 0.9rem !important; }
+.link:hover, .link:global(.active) { color: var(--av-primaria) !important; background: rgba(79, 70, 229, 0.08); }
