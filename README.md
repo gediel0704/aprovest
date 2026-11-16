@@ -19,7 +19,6 @@ AproVest/
 ├── aprovest-api/      Back-end: Java 21 + Spring Boot 4 + Spring Security (JWT) + JPA + SQL Server
 ├── aprovest-web/      Front-end: React + Vite + JavaScript + Bootstrap + CSS Modules
 ├── database/          Scripts do Microsoft SQL Server e importadores das questões oficiais
-└── docs/              Dicionário de dados, DER, revisão do documento, manual e telas
 ```
 
 A estrutura segue o modelo do professor: no front, as páginas ficam em `pages/NomeDaPagina/NomeDaPagina.jsx` + `.module.css`, com `components/`, `routes/AppRoutes.jsx` e `services/api.js` (axios); no back, os pacotes são `auth`, `config`, `controller`, `dto`, `exceptions`, `model/entity`, `model/enums`, `model/repository`, `model/services` e `security`.
@@ -49,7 +48,7 @@ Só entram no banco as questões 100% textuais: itens que dependem de figura, gr
 
 No SQL Server Management Studio, abra e execute **em ordem**:
 
-1. `database/01_aprovest_banco.sql` - cria o banco `aprovestdb` e as 30 tabelas
+1. `database/01_aprovest_banco.sql` - cria o banco `aprovestdb` e as 31 tabelas
 2. `database/02_taxonomia_e_questoes_oficiais.sql` - vestibulares, disciplinas, tópicos e 829 questões oficiais
 3. `database/03_temas_e_materiais.sql` - temas de redação, fontes oficiais e resumos
 4. `database/04_backup_diario.sql` - (opcional) job de backup diário com retenção de 30 dias

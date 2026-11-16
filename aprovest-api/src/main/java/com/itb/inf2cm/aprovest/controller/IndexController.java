@@ -30,7 +30,7 @@ public class IndexController {
         m.put("versao", "1.0.0");
         m.put("status", "online");
         m.put("horario", LocalDateTime.now());
-        m.put("documentacao", "Veja docs/API.md no repositório do projeto.");
+        m.put("documentacao", "Veja o README.md no repositório do projeto.");
         return ResponseEntity.ok(ApiResponse.of(m));
     }
 

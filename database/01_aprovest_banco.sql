@@ -468,5 +468,22 @@ CREATE TABLE EstadoIA (
 );
 GO
 
-PRINT 'Banco aprovestdb criado com sucesso. Execute agora 02_dados_base.sql';
+-- Fale Conosco (página pública): mensagens de visitantes, tratadas pelo administrador (RF20 / UC048-UC049)
+CREATE TABLE MensagemContato (
+    id             BIGINT          NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    nome           NVARCHAR(120)   NOT NULL,
+    email          VARCHAR(160)    NOT NULL,
+    assunto        VARCHAR(20)     NOT NULL,     -- DUVIDA | SUGESTAO | SUPORTE | PARCERIA | PRIVACIDADE
+    mensagem       NVARCHAR(2000)  NOT NULL,
+    status         VARCHAR(20)     NOT NULL DEFAULT 'NOVA', -- NOVA | EM_ATENDIMENTO | RESPONDIDA
+    observacao     NVARCHAR(500)   NULL,         -- anotação interna do administrador
+    criado_em      DATETIME2       NOT NULL DEFAULT SYSDATETIME(),
+    atualizado_em  DATETIME2       NULL,
+    CONSTRAINT ck_contato_assunto CHECK (assunto IN ('DUVIDA','SUGESTAO','SUPORTE','PARCERIA','PRIVACIDADE')),
+    CONSTRAINT ck_contato_status  CHECK (status IN ('NOVA','EM_ATENDIMENTO','RESPONDIDA'))
+);
+CREATE INDEX ix_contato_status ON MensagemContato (status, criado_em);
+GO
+
+PRINT 'Banco aprovestdb criado com sucesso. Execute agora 02_taxonomia_e_questoes_oficiais.sql';
 GO

@@ -81,7 +81,7 @@ function Cadastro() {
             <div className="form-check mb-4">
               <input className="form-check-input" type="checkbox" id="aceite" checked={aceite} onChange={(e) => setAceite(e.target.checked)} />
               <label className="form-check-label small" htmlFor="aceite">
-                Li e aceito os termos de uso e a política de privacidade. Autorizo o tratamento dos meus dados de estudo para
+                Li e aceito os <Link to="/termos">termos de uso</Link> e a <Link to="/privacidade">política de privacidade</Link>. Autorizo o tratamento dos meus dados de estudo para
                 personalizar minha preparação, conforme a LGPD.
               </label>
             </div>

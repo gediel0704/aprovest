@@ -14,6 +14,7 @@ export const LINKS_ADMIN = [
   { para: "/admin/ia", icone: "fa-robot", texto: "Serviço de IA" },
   { para: "/admin/lgpd", icone: "fa-shield-halved", texto: "Solicitações LGPD" },
   { para: "/admin/comunicados", icone: "fa-bullhorn", texto: "Comunicados" },
+  { para: "/admin/contatos", icone: "fa-envelope", texto: "Fale Conosco" },
   { grupo: "Docência" },
   { para: "/corretor", icone: "fa-inbox", texto: "Fila docente" },
   ...LINKS_ALUNO.filter((l) => !l.grupo || l.grupo === "Estudo").map((l) => (l.grupo ? { grupo: "Visão do aluno" } : l)),

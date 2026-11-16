@@ -25,7 +25,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-        return !request.getRequestURI().startsWith("/api/v1/auth/") || "OPTIONS".equals(request.getMethod());
+        String uri = request.getRequestURI();
+        boolean contato = uri.equals("/api/v1/publico/contato") && "POST".equals(request.getMethod());
+        return !(uri.startsWith("/api/v1/auth/") || contato) || "OPTIONS".equals(request.getMethod());
     }
 
     @Override

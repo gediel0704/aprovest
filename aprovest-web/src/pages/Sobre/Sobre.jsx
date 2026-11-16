@@ -19,7 +19,23 @@ const TECNOLOGIAS = [
   ["fa-solid fa-robot", "Claude (Anthropic)", "Correção de redação por IA"],
 ];
 
-// UC001 - Página pública "Sobre"
+const PILARES = [
+  ["fa-bullseye", "Objetivo", "Desenvolver uma plataforma web que apoie candidatos ao ENEM, à FUVEST e à Unicamp com questões adaptativas, correção qualificada de redação e simulados com percentil real, ampliando a eficiência do estudo, reduzindo a ansiedade pré-prova e democratizando uma preparação de alto nível."],
+  ["fa-scale-balanced", "Justificativa", "As plataformas atuais entregam o mesmo conteúdo para todos, corrigem redações de forma superficial ou cara e não mostram ao aluno se ele está perto da aprovação. O AproVest personaliza o estudo com dados, corrige a redação nos critérios oficiais de cada banca e mantém um plano gratuito para estudantes de baixa renda."],
+  ["fa-flask", "Metodologia", "Algoritmo Elo (modelo logístico da Teoria de Resposta ao Item) para calibrar alunos e questões, repetição espaçada para revisão e grades oficiais de cada banca na correção de redação."],
+  ["fa-building-columns", "Fontes oficiais", "Questões e gabaritos do INEP (ENEM), da FUVEST (USP) e da Comvest (Unicamp); critérios de correção e abordagens esperadas publicados pelas próprias bancas."],
+];
+
+const ODS = [
+  { numero: 4, cor: "#C5192D", nome: "Educação de qualidade", fonte: "https://brasil.un.org/pt-br/sdgs/4",
+    oficial: "Assegurar a educação inclusiva e equitativa e de qualidade, e promover oportunidades de aprendizagem ao longo da vida para todas e todos.",
+    relacao: "Meta 4.3: igualdade de acesso à educação superior de qualidade. O AproVest prepara o aluno para o ingresso na universidade com conteúdo oficial e estudo personalizado." },
+  { numero: 10, cor: "#DD1367", nome: "Redução das desigualdades", fonte: "https://brasil.un.org/pt-br/sdgs/10",
+    oficial: "Reduzir a desigualdade dentro dos países e entre eles.",
+    relacao: "O plano gratuito, as bolsas mensais por mérito (um mês de Plano Pro para os 100 melhores do ranking) e o acesso pelo celular aproximam a preparação de alto nível de quem não pode pagar um cursinho." },
+];
+
+// UC001 - Página pública "Sobre" (objetivo, justificativa e ODS)
 function Sobre() {
   return (
     <>
@@ -38,27 +54,35 @@ function Sobre() {
 
       <section className="container py-5">
         <div className="row g-4">
-          <div className="col-lg-4">
-            <div className="av-card h-100">
-              <div className="av-icone-circulo mb-3"><i className="fa-solid fa-bullseye"></i></div>
-              <h2 className="h5">Objetivo</h2>
-              <p className="text-suave mb-0">Apoiar candidatos com questões adaptativas, correção qualificada de redação e simulados com percentil real, reduzindo a ansiedade pré-prova e democratizando uma preparação de alto nível.</p>
+          {PILARES.map(([icone, titulo, texto]) => (
+            <div className="col-md-6" key={titulo}>
+              <div className="av-card h-100">
+                <div className="av-icone-circulo mb-3"><i className={`fa-solid ${icone}`}></i></div>
+                <h2 className="h5">{titulo}</h2>
+                <p className="text-suave mb-0">{texto}</p>
+              </div>
             </div>
-          </div>
-          <div className="col-lg-4">
-            <div className="av-card h-100">
-              <div className="av-icone-circulo mb-3"><i className="fa-solid fa-flask"></i></div>
-              <h2 className="h5">Metodologia</h2>
-              <p className="text-suave mb-0">Algoritmo Elo (modelo logístico da Teoria de Resposta ao Item) para calibrar alunos e questões, repetição espaçada para revisão e grades oficiais de cada banca na correção de redação.</p>
+          ))}
+        </div>
+      </section>
+
+      <section className="container pb-5" id="ods">
+        <h2 className="h3 mb-2">Objetivos de Desenvolvimento Sustentável</h2>
+        <p className="text-suave mb-4">O AproVest se relaciona com a Agenda 2030 da Organização das Nações Unidas (ONU).</p>
+        <div className="row g-4">
+          {ODS.map((o) => (
+            <div className="col-md-6" key={o.numero}>
+              <div className={`av-card h-100 ${styles.ods}`}>
+                <div className={styles.odsNumero} style={{ background: o.cor }}><small>ODS</small>{o.numero}</div>
+                <div>
+                  <h3 className="h5 mb-1">{o.nome}</h3>
+                  <p className="small text-suave fst-italic mb-2">{o.oficial}</p>
+                  <p className="mb-2">{o.relacao}</p>
+                  <a href={o.fonte} target="_blank" rel="noreferrer" className="small"><i className="fa-solid fa-arrow-up-right-from-square me-1"></i>Fonte: ONU Brasil</a>
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="col-lg-4">
-            <div className="av-card h-100">
-              <div className="av-icone-circulo mb-3"><i className="fa-solid fa-building-columns"></i></div>
-              <h2 className="h5">Fontes oficiais</h2>
-              <p className="text-suave mb-0">Questões e gabaritos do INEP (ENEM), da FUVEST (USP) e da Comvest (Unicamp); critérios de correção e abordagens esperadas publicados pelas próprias bancas.</p>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 

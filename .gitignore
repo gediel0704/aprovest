@@ -24,11 +24,8 @@ Thumbs.db
 *.log
 npm-debug.log*
 
-# Arquivos de trabalho do vídeo (o vídeo final fica em video/)
-video/trabalho/
 .claude/
 
-# Mídia do vídeo (arquivos grandes: o vídeo final vai como anexo de uma Release no GitHub)
-video/cenas/*.mp4
-video/audio/
-video/AproVest_apresentacao.mp4
+
+# Entregas do TCC (documento, vídeo, roteiro, revisão): ficam só na máquina do grupo, fora do repositório
+entregas/

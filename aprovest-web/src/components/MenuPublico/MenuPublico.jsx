@@ -22,6 +22,8 @@ const MenuPublico = () => {
             <li className="nav-item"><a className={`nav-link ${styles.link}`} href="/#recursos">Recursos</a></li>
             <li className="nav-item"><NavLink className={`nav-link ${styles.link}`} to="/planos">Planos</NavLink></li>
             <li className="nav-item"><NavLink className={`nav-link ${styles.link}`} to="/sobre">Sobre</NavLink></li>
+            <li className="nav-item"><NavLink className={`nav-link ${styles.link}`} to="/ajuda">Ajuda</NavLink></li>
+            <li className="nav-item"><NavLink className={`nav-link ${styles.link}`} to="/contato">Contato</NavLink></li>
           </ul>
           <div className="d-flex gap-2 align-items-center mt-3 mt-lg-0">
             <button className="btn btn-suave" onClick={() => alternarTemaLocal(tema === "escuro" ? "claro" : "escuro")} aria-label="Alternar tema">

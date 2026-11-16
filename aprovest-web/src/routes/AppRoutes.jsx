@@ -7,6 +7,10 @@ import RotaProtegida from "./RotaProtegida";
 const Home = lazy(() => import("../pages/Home/Home"));
 const Sobre = lazy(() => import("../pages/Sobre/Sobre"));
 const Planos = lazy(() => import("../pages/Planos/Planos"));
+const Contato = lazy(() => import("../pages/Contato/Contato"));
+const Ajuda = lazy(() => import("../pages/Ajuda/Ajuda"));
+const Privacidade = lazy(() => import("../pages/Privacidade/Privacidade"));
+const Termos = lazy(() => import("../pages/Termos/Termos"));
 const Login = lazy(() => import("../pages/Login/Login"));
 const Cadastro = lazy(() => import("../pages/Cadastro/Cadastro"));
 const EsqueciSenha = lazy(() => import("../pages/EsqueciSenha/EsqueciSenha"));
@@ -60,6 +64,7 @@ const Bolsas = lazy(() => import("../pages/Bolsas/Bolsas"));
 const ServicoIA = lazy(() => import("../pages/ServicoIA/ServicoIA"));
 const SolicitacoesLgpd = lazy(() => import("../pages/SolicitacoesLgpd/SolicitacoesLgpd"));
 const Comunicados = lazy(() => import("../pages/Comunicados/Comunicados"));
+const MensagensContato = lazy(() => import("../pages/MensagensContato/MensagensContato"));
 
 const ALUNO = ["ALUNO", "ADMIN"];
 const CORRETOR = ["CORRETOR", "ADMIN"];
@@ -78,6 +83,10 @@ function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/sobre" element={<Sobre />} />
         <Route path="/planos" element={<Planos />} />
+        <Route path="/contato" element={<Contato />} />
+        <Route path="/ajuda" element={<Ajuda />} />
+        <Route path="/privacidade" element={<Privacidade />} />
+        <Route path="/termos" element={<Termos />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cadastro" element={<Cadastro />} />
         <Route path="/esqueci-senha" element={<EsqueciSenha />} />
@@ -130,6 +139,7 @@ function AppRoutes() {
         <Route path="/admin/ia" element={p(ADMIN, <ServicoIA />)} />
         <Route path="/admin/lgpd" element={p(ADMIN, <SolicitacoesLgpd />)} />
         <Route path="/admin/comunicados" element={p(ADMIN, <Comunicados />)} />
+        <Route path="/admin/contatos" element={p(ADMIN, <MensagensContato />)} />
 
         <Route path="*" element={<NaoEncontrada />} />
       </Routes>

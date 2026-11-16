@@ -18,6 +18,8 @@ const Rodape = () => (
           <Link to="/planos">Planos</Link>
           <Link to="/sobre">Sobre o projeto</Link>
           <Link to="/cadastro">Criar conta</Link>
+          <Link to="/ajuda">Central de Ajuda</Link>
+          <Link to="/contato">Fale Conosco</Link>
         </div>
         <div className="col-6 col-lg-2">
           <h6>Fontes oficiais</h6>
@@ -28,6 +30,8 @@ const Rodape = () => (
         <div className="col-lg-3">
           <h6>Privacidade</h6>
           <p className={styles.descricao}>Seus dados são tratados conforme a LGPD (Lei nº 13.709/2018). Você pode exportá-los ou pedir a exclusão a qualquer momento.</p>
+          <Link to="/privacidade">Política de Privacidade</Link>
+          <Link to="/termos">Termos de Uso</Link>
         </div>
       </div>
       <div className={styles.base}>© {new Date().getFullYear()} AproVest · INF2CM · Notas e percentis são estimativas de treino, não resultados oficiais.</div>

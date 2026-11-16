@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -116,4 +117,16 @@ public final class Requests {
     public record PausarIa(String motivo) {}
 
     public record Comunicado(@NotBlank String titulo, @NotBlank @Size(max = 600) String mensagem, String link) {}
+
+    // ------------------------------- Fale Conosco -------------------------------
+    public record Contato(
+            @NotBlank(message = "Informe seu nome.") @Size(min = 3, max = 120, message = "O nome deve ter de 3 a 120 caracteres.") String nome,
+            @NotBlank(message = "Informe seu e-mail.") @Email(message = "E-mail inválido.") @Size(max = 160) String email,
+            @NotBlank(message = "Escolha o assunto.") @Pattern(regexp = "DUVIDA|SUGESTAO|SUPORTE|PARCERIA|PRIVACIDADE", message = "Assunto inválido.") String assunto,
+            @NotBlank(message = "Escreva sua mensagem.") @Size(min = 10, max = 2000, message = "A mensagem deve ter de 10 a 2.000 caracteres.") String mensagem,
+            @AssertTrue(message = "É preciso autorizar o uso dos dados para responder ao contato.") boolean aceite) {}
+
+    public record AtualizarContato(
+            @NotBlank @Pattern(regexp = "NOVA|EM_ATENDIMENTO|RESPONDIDA", message = "Situação inválida.") String status,
+            @Size(max = 500, message = "A observação deve ter até 500 caracteres.") String observacao) {}
 }
