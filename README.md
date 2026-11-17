@@ -59,8 +59,10 @@ Copie `aprovest-api/src/main/resources/application-local.properties.example` par
 
 ```
 cd aprovest-api
-mvnw.cmd spring-boot:run
+.\mvnw.cmd spring-boot:run
 ```
+
+No PowerShell (terminal padrão do VS Code no Windows) o comando precisa do `.\` no início. No Prompt de Comando (cmd) use `mvnw.cmd spring-boot:run` e no Git Bash use `./mvnw spring-boot:run`. A API está pronta quando aparecer `Started AprovestApplication` no terminal.
 
 A API sobe em `http://localhost:8080/api/v1` (teste em `http://localhost:8080/api/v1/index`).
 
@@ -79,6 +81,20 @@ npm run dev
 ```
 
 Acesse `http://localhost:5173`.
+
+### Rodando no VS Code
+
+1. Abra a pasta `AproVest` no VS Code (Arquivo > Abrir Pasta).
+2. Abra um terminal (Terminal > Novo Terminal) e suba a API com `cd aprovest-api` e `.\mvnw.cmd spring-boot:run`. Deixe esse terminal aberto.
+3. Abra um **segundo** terminal (botão `+` do painel) e suba o site com `cd aprovest-web`, `npm install` (só na primeira vez) e `npm run dev`.
+4. Abra `http://localhost:5173` no navegador.
+
+Problemas comuns:
+
+- **`JAVA_HOME` não definido:** feche e abra o VS Code depois de instalar o Java 21, para o terminal enxergar a variável. Confira com `java -version`.
+- **`Port 8080 was already in use`:** já existe uma API rodando. Feche o outro terminal ou finalize o processo `java`.
+- **`Login failed for user sa`:** a senha em `application-local.properties` não confere com a do SQL Server.
+- **O site abre mas não carrega dados:** a API não está rodando ou ainda não terminou de subir.
 
 ## Principais funcionalidades
 
