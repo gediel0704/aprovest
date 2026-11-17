@@ -68,7 +68,7 @@ O `npm run dev` prepara tudo sozinho, em qualquer computador com Windows:
 4. **Banco:** se o `aprovestdb` não existir, a API o cria com os scripts da pasta `database`.
 5. **Site:** sobe o site e abre `http://localhost:5173` quando a API já está lendo o banco.
 
-A primeira execução demora alguns minutos, porque baixa as dependências do Java e cria o banco. Para encerrar, pressione **Ctrl+C**.
+A primeira execução demora alguns minutos, porque baixa as dependências do Java e cria o banco. Depois que o site abre, a API ainda cria em segundo plano 12 alunos de demonstração (para o ranking e o percentil); se o `npm run dev` for fechado antes, a criação continua de onde parou na próxima vez. Para encerrar, pressione **Ctrl+C**.
 
 Contas de teste criadas automaticamente: `aluno@aprovest.com.br`, `corretor@aprovest.com.br` e `admin@aprovest.com.br` (senha padrão em `app.seed.senha-padrao`, no `application.properties`).
 
@@ -85,6 +85,7 @@ Contas de teste criadas automaticamente: `aluno@aprovest.com.br`, `corretor@apro
 | Não foi possível entrar no SQL Server | O usuário do Windows não tem acesso e a senha do `sa` não foi aceita. Use a senha do `sa` desse computador ou peça a quem administra o SQL Server para liberar o seu usuário. |
 | O banco não existe e o login não pode criá-lo | Execute no SSMS os scripts `database/01`, `02` e `03`, nessa ordem, com um login administrador. |
 | Porta 8080 ou 5173 ocupada | Feche o outro programa ou o outro terminal com o projeto rodando. |
+| Tudo muito lento | Não deixe o projeto dentro do OneDrive (ou de outra pasta sincronizada): o `npm install` e o Maven criam milhares de arquivos que o OneDrive tenta enviar para a nuvem, sobrecarregando o computador. Prefira uma pasta como `C:\Projetos\aprovest`. |
 
 Para refazer a detecção do banco do zero, apague o arquivo `C:Users<usuário>.aprovestanco.json`.
 

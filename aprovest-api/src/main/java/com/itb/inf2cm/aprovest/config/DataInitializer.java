@@ -71,8 +71,9 @@ public class DataInitializer implements CommandLineRunner {
             Usuario a = criar(new Aluno(), "Aluno AproVest", alunoEmail, "Medicina", "USP", "ENEM,FUVEST");
             acessoService.adicionarCreditos(a, 2, "Créditos de boas-vindas (demonstração)");
         }
+        // retoma de onde parou se a criação anterior foi interrompida (ex.: o npm run dev foi fechado no meio)
         if (criarDemonstracao && questaoRepository.count() > 0
-                && usuarioRepository.findByEmail("aluno01" + DOMINIO_DEMO).isEmpty()) {
+                && usuarioRepository.findByEmail("aluno12" + DOMINIO_DEMO).isEmpty()) {
             new Thread(this::criarAlunosDemonstracao, "seed-demonstracao").start();
         }
     }
@@ -99,10 +100,12 @@ public class DataInitializer implements CommandLineRunner {
             Random rnd = new Random(42);
             for (int i = 0; i < nomes.length; i++) {
                 String[] meta = metas[i % metas.length];
-                Usuario u = criar(new Aluno(), nomes[i] + " (demo)", String.format("aluno%02d%s", i + 1, DOMINIO_DEMO),
-                        meta[0], meta[1], "ENEM,FUVEST,UNICAMP");
+                double habilidadeBase = 900 + rnd.nextGaussian() * 140;   // sorteado sempre, para manter a mesma sequência
+                String email = String.format("aluno%02d%s", i + 1, DOMINIO_DEMO);
+                if (usuarioRepository.findByEmail(email).isPresent()) continue;   // já criado em uma execução anterior
+                Usuario u = criar(new Aluno(), nomes[i] + " (demo)", email, meta[0], meta[1], "ENEM,FUVEST,UNICAMP");
                 acessoService.adicionarCreditos(u, 5, "Créditos de demonstração");
-                double habilidade = 900 + rnd.nextGaussian() * 140;
+                double habilidade = habilidadeBase;
                 for (String vest : List.of("ENEM", "FUVEST", "UNICAMP")) {
                     responderSessao(u, estudoService.iniciarSimulado(u, new Requests.IniciarSessao(vest, "SEMANAL", true)), habilidade, rnd);
                 }
