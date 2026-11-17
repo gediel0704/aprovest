@@ -75,6 +75,10 @@ const portaAberta = (porta) => new Promise((ok) => {
 async function apiNoAr() {
   try { const r = await fetch(URL_API); const j = await r.json(); return String(j?.data?.aplicacao || "").includes("AproVest"); } catch { return false; }
 }
+// "pronto" só quando a API responde E consegue ler o banco (esta rota consulta o SQL Server)
+async function bancoPronto() {
+  try { const r = await fetch(`http://localhost:${PORTA_API}/api/v1/publico/numeros`); return r.ok; } catch { return false; }
+}
 const pergunta = (texto, oculta = false) => new Promise((ok) => {
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true });
   if (oculta) rl._writeToOutput = (s) => { if (s.includes(texto)) rl.output.write(s); else rl.output.write("*".repeat(s.length ? 1 : 0)); };
@@ -118,6 +122,25 @@ info("Iniciando o AproVest...");
 
 let envApi = { ...process.env };
 let apiJaRodando = await apiNoAr();
+let falhaLogin = false;
+
+// Senha do sa recusada pelo SQL Server: explica, apaga a senha salva pelo npm run dev e encerra
+function senhaErrada() {
+  console.log("");
+  erro("O SQL Server recusou o login do usuário 'sa' (senha incorreta ou login 'sa' desabilitado neste computador).");
+  if (envApi.APROVEST_DB_PASSWORD) {
+    erro("A senha veio da variável APROVEST_DB_PASSWORD. Corrija o valor dela e rode \"npm run dev\" de novo.");
+  } else if (fs.existsSync(LOCAL) && fs.readFileSync(LOCAL, "utf8").includes("Criado pelo npm run dev")) {
+    fs.rmSync(LOCAL);
+    erro("Apaguei a senha salva. Rode \"npm run dev\" de novo e digite a senha do 'sa' DESTE computador.");
+  } else {
+    erro(`Corrija a senha em ${path.relative(RAIZ, LOCAL)} e rode "npm run dev" de novo.`);
+  }
+  erro("Não sabe a senha? Em computadores da escola, peça ao professor ou ao técnico do laboratório. No seu computador,");
+  erro("o script database/configurar-sqlserver.ps1 (executado como administrador) habilita o 'sa' e define uma nova senha.");
+  encerrar();
+  process.exit(1);
+}
 
 if (!apenasSite && !apiJaRodando) {
   // 1. Java
@@ -127,6 +150,8 @@ if (!apenasSite && !apiJaRodando) {
   // no Windows a variável se chama "Path"; usar a mesma chave evita duas variáveis de caminho no processo filho
   const chavePath = Object.keys(envApi).find((k) => k.toUpperCase() === "PATH") || "PATH";
   envApi[chavePath] = path.join(java, "bin") + path.delimiter + (envApi[chavePath] || "");
+  // mensagens da API com acentos corretos no terminal
+  envApi.JAVA_TOOL_OPTIONS = `${envApi.JAVA_TOOL_OPTIONS || ""} -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8`.trim();
   info(`Java: ${java}`);
 
   // 2. SQL Server
@@ -154,11 +179,13 @@ if (!apenasSite && !apiJaRodando) {
     && !/Downloaded from| WARN /.test(l);
   let avisouDownload = false;
   const api = iniciar("api", mvnw, ["-q", "spring-boot:run"], API, envApi, (l) => {
+    if (/Falha de logon do usu|Login failed for user/i.test(l)) { if (falhaLogin) return false; falhaLogin = true; return false; }
+    if (falhaLogin) return false;   // depois do erro de senha, o resto do log só repete o mesmo problema
     if (/Downloading from central/.test(l)) { if (!avisouDownload) { avisouDownload = true; return true; } return false; }
     return filtroApi(l);
   });
   api.on("exit", (codigo) => {
-    if (!codigo) return;
+    if (!codigo || falhaLogin) return;
     erro(`A API foi encerrada (código ${codigo}). Últimas mensagens:`);
     ultimas.api.slice(-25).forEach((l) => console.log(cor("35", "[api] ") + l));
   });
@@ -166,8 +193,8 @@ if (!apenasSite && !apiJaRodando) {
   info("A API já está rodando na porta 8080; ela será reaproveitada.");
 }
 
-// 5. Site
-if (!fs.existsSync(path.join(WEB, "node_modules"))) {
+// 5. Site (instala as dependências se faltar o Vite, inclusive depois de um npm install que falhou)
+if (!fs.existsSync(path.join(WEB, "node_modules", "vite", "package.json")) || !fs.existsSync(path.join(WEB, "node_modules", "@vitejs", "plugin-react", "package.json"))) {
   info("Instalando as dependências do site (npm install)...");
   await new Promise((ok, falha) => executar("npm", ["install", "--no-audit", "--no-fund"], { cwd: WEB, stdio: "inherit" })
     .on("exit", (c) => (c ? falha(new Error("npm install falhou")) : ok())));
@@ -175,13 +202,17 @@ if (!fs.existsSync(path.join(WEB, "node_modules"))) {
 if (await portaAberta(PORTA_WEB)) {
   info(`O site já está rodando em ${URL_SITE}.`);
 } else {
-  iniciar("web", "npx", ["vite", "--port", String(PORTA_WEB), "--strictPort"], WEB, process.env);
+  const web = iniciar("web", "npx", ["vite", "--port", String(PORTA_WEB), "--strictPort"], WEB, process.env);
+  web.on("exit", (codigo) => {
+    if (codigo) erro("O site não iniciou. Rode \"npm install\" na pasta do projeto e depois \"npm run dev\" de novo.");
+  });
 }
 
 // Aguarda a API ficar pronta
 if (!apenasSite) {
   const inicio = Date.now();
-  while (!(await apiNoAr())) {
+  while (!(await bancoPronto())) {
+    if (falhaLogin) senhaErrada();
     if (Date.now() - inicio > 10 * 60_000) sair("A API não respondeu em 10 minutos. Veja as mensagens acima.");
     if (filhos[0] && filhos[0].exitCode !== null) sair("A API não conseguiu iniciar. Veja as mensagens acima.");
     await new Promise((r) => setTimeout(r, 2000));

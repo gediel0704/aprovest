@@ -5,10 +5,10 @@
   "description": "AproVest - plataforma de preparação para ENEM, FUVEST e Unicamp (TCC FIEB/ITB, INF2CM)",
   "type": "module",
   "scripts": {
-    "postinstall": "npm install --prefix aprovest-web --no-audit --no-fund",
+    "postinstall": "cd aprovest-web && npm install --no-audit --no-fund",
     "dev": "node scripts/iniciar.mjs",
-    "web": "npm run dev:web --prefix aprovest-web",
-    "build": "npm run build --prefix aprovest-web"
+    "web": "cd aprovest-web && npm run dev:web",
+    "build": "cd aprovest-web && npm run build"
   },
   "engines": {
     "node": ">=20.19"
