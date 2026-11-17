@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node ../scripts/iniciar.mjs",
+    "dev:all": "node ../scripts/iniciar.mjs",
     "dev:web": "vite",
     "build": "vite build",
     "lint": "oxlint",

@@ -10,6 +10,7 @@
 import { spawn, spawnSync, execFileSync } from "node:child_process";
 import fs from "node:fs";
 import net from "node:net";
+import os from "node:os";
 import path from "node:path";
 import readline from "node:readline";
 import { fileURLToPath } from "node:url";
@@ -65,13 +66,15 @@ function localizarJava() {
 }
 
 // ---------- utilidades de rede ----------
-const portaAberta = (porta) => new Promise((ok) => {
-  const s = net.connect({ port: porta, host: "127.0.0.1" });
+const portaNoHost = (porta, host) => new Promise((ok) => {
+  const s = net.connect({ port: porta, host });
   s.setTimeout(1500);
   s.once("connect", () => { s.destroy(); ok(true); });
   s.once("error", () => ok(false));
   s.once("timeout", () => { s.destroy(); ok(false); });
 });
+// testa IPv4 e IPv6: o Vite costuma escutar só em ::1 (localhost)
+const portaAberta = async (porta) => (await portaNoHost(porta, "127.0.0.1")) || (await portaNoHost(porta, "::1"));
 async function apiNoAr() {
   try { const r = await fetch(URL_API); const j = await r.json(); return String(j?.data?.aplicacao || "").includes("AproVest"); } catch { return false; }
 }
@@ -124,20 +127,109 @@ let envApi = { ...process.env };
 let apiJaRodando = await apiNoAr();
 let falhaLogin = false;
 
-// Senha do sa recusada pelo SQL Server: explica, apaga a senha salva pelo npm run dev e encerra
+// ---------- banco de dados: descoberta automática do SQL Server deste computador ----------
+const NOME_BANCO = process.env.APROVEST_DB_NOME || "aprovestdb";
+const CONFIG_BANCO = path.join(os.homedir(), ".aprovest", "banco.json");   // salvo por usuário do Windows, vale para qualquer clone
+const lerJson = (arq) => { try { return JSON.parse(fs.readFileSync(arq, "utf8")); } catch { return null; } };
+function sqlserver(args) {
+  const r = spawnSync("powershell", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", path.join(RAIZ, "scripts", "sqlserver.ps1"), ...args], { encoding: "utf8" });
+  const texto = (r.stdout || "").trim().split(/\r?\n/).pop() || "";
+  try { return JSON.parse(texto); } catch { return null; }
+}
+const testarLogin = (porta, usuario, senha) =>
+  sqlserver(["-Acao", "testar", "-Banco", NOME_BANCO, "-Porta", String(porta), ...(usuario ? ["-Usuario", usuario, "-Senha", senha] : [])]) || { ok: false, erro: "falha ao testar" };
+function senhaLegada() {
+  // compatibilidade: versões anteriores salvavam a senha em application-local.properties
+  try { return fs.readFileSync(LOCAL, "utf8").match(/^spring\.datasource\.password=(.*)$/m)?.[1]?.trim() || null; } catch { return null; }
+}
+function usarConexao(c) {
+  const url = `jdbc:sqlserver://localhost:${c.porta};databaseName=${NOME_BANCO};encrypt=true;trustServerCertificate=true${c.auth === "windows" ? ";integratedSecurity=true" : ""}`;
+  envApi.SPRING_DATASOURCE_URL = url;
+  envApi.SPRING_DATASOURCE_USERNAME = c.auth === "windows" ? "" : c.usuario;
+  envApi.SPRING_DATASOURCE_PASSWORD = c.auth === "windows" ? "" : c.senha;
+}
+
+async function prepararBanco() {
+  if (envApi.APROVEST_DB_URL) { info("Banco: usando a conexão definida em APROVEST_DB_URL."); return; }
+  if (!WINDOWS) {
+    if (!(await portaAberta(1433))) sair("SQL Server não respondeu na porta 1433.");
+    if (!senhaLegada() && !envApi.APROVEST_DB_PASSWORD) {
+      const senha = (await pergunta("Senha do sa: ", true)).trim();
+      fs.writeFileSync(LOCAL, `# Configuração local (NÃO versionar). Criado pelo npm run dev.\nspring.datasource.password=${senha}\n`, "utf8");
+    }
+    return;
+  }
+
+  // 1) instâncias instaladas
+  const instancias = sqlserver(["-Acao", "instancias"]) || [];
+  if (!instancias.length) sair("Nenhum SQL Server foi encontrado neste computador. Instale o SQL Server 2019 ou superior (edição Developer ou Express) e rode \"npm run dev\" de novo.");
+  const rodando = instancias.filter((i) => i.estado === "Running");
+  if (!rodando.length) {
+    sair(`O SQL Server está instalado (${instancias.map((i) => i.nome).join(", ")}), mas o serviço está parado. Inicie o serviço "${instancias[0].servico}" (Painel de Serviços do Windows ou SQL Server Configuration Manager) e rode "npm run dev" de novo.`);
+  }
+  const comTcp = rodando.filter((i) => i.tcp && i.porta);
+  if (!comTcp.length) {
+    const nome = rodando[0].nome;
+    sair(`O SQL Server (${nome}) está rodando, mas com o protocolo TCP/IP desligado, que a API Java precisa.\n` +
+      `           Para habilitar (como administrador): abra o PowerShell como administrador na pasta do projeto e rode\n` +
+      `           powershell -ExecutionPolicy Bypass -File database\\configurar-sqlserver.ps1 -Instancia ${nome}\n` +
+      `           Em computadores da escola, peça ao técnico do laboratório para habilitar o TCP/IP do SQL Server.`);
+  }
+
+  // 2) logins candidatos, do mais conveniente ao menos conveniente
+  const salvo = lerJson(CONFIG_BANCO);
+  const portas = [...new Set([salvo?.porta, ...comTcp.map((i) => i.porta)].filter(Boolean))];
+  const instPorta = (p) => comTcp.find((i) => i.porta === p)?.nome || "?";
+  let escolha = null;
+  for (const porta of portas) {
+    const tentativas = [];
+    if (salvo && salvo.porta === porta) tentativas.push(salvo);
+    tentativas.push({ porta, auth: "windows" });
+    const legada = senhaLegada() || envApi.APROVEST_DB_PASSWORD;
+    if (legada) tentativas.push({ porta, auth: "sql", usuario: "sa", senha: legada });
+    for (const t of tentativas) {
+      const r = t.auth === "windows" ? testarLogin(porta) : testarLogin(porta, t.usuario, t.senha);
+      if (r.ok) { escolha = { ...t, resultado: r }; break; }
+    }
+    if (escolha) break;
+  }
+  // 3) se nada funcionou, pede a senha do sa (até 3 vezes), testando antes de subir a API
+  if (!escolha) {
+    info(`SQL Server encontrado (${comTcp.map((i) => `${i.nome}, porta ${i.porta}`).join("; ")}), mas a autenticação do Windows não tem acesso.`);
+    for (let n = 1; n <= 3 && !escolha; n++) {
+      const senha = (await pergunta(`Senha do usuário 'sa' deste SQL Server (tentativa ${n} de 3): `, true)).trim();
+      if (!senha) break;
+      for (const porta of portas) {
+        const r = testarLogin(porta, "sa", senha);
+        if (r.ok) { escolha = { porta, auth: "sql", usuario: "sa", senha, resultado: r }; break; }
+        if (porta === portas[portas.length - 1]) erro(`Login recusado: ${r.erro}`);
+      }
+    }
+    if (!escolha) {
+      sair("Não foi possível entrar no SQL Server. Use a senha do 'sa' deste computador ou peça ao professor/técnico do laboratório\n" +
+        "           para dar acesso ao seu usuário do Windows no SQL Server (ou habilitar o login 'sa').");
+    }
+  }
+  // 4) o banco existe ou pode ser criado?
+  const r = escolha.resultado;
+  if (!r.bancoExiste && !r.podeCriar) {
+    sair(`O banco ${NOME_BANCO} ainda não existe e o login '${r.usuario}' não tem permissão para criá-lo.\n` +
+      "           Peça a quem administra o SQL Server para executar, no SSMS, os scripts database/01, 02 e 03 (nessa ordem).");
+  }
+  const { resultado, ...guardar } = escolha;
+  fs.mkdirSync(path.dirname(CONFIG_BANCO), { recursive: true });
+  fs.writeFileSync(CONFIG_BANCO, JSON.stringify(guardar, null, 2), "utf8");
+  usarConexao(escolha);
+  info(`Banco: SQL Server ${instPorta(escolha.porta)} (porta ${escolha.porta}), login ${escolha.auth === "windows" ? `do Windows (${r.usuario})` : "'sa'"}` +
+    (r.bancoExiste ? `, banco ${NOME_BANCO} encontrado.` : `, o banco ${NOME_BANCO} será criado agora.`));
+}
+
+// Login recusado durante a subida da API (raro, pois o login é testado antes): apaga a configuração salva e explica
 function senhaErrada() {
   console.log("");
-  erro("O SQL Server recusou o login do usuário 'sa' (senha incorreta ou login 'sa' desabilitado neste computador).");
-  if (envApi.APROVEST_DB_PASSWORD) {
-    erro("A senha veio da variável APROVEST_DB_PASSWORD. Corrija o valor dela e rode \"npm run dev\" de novo.");
-  } else if (fs.existsSync(LOCAL) && fs.readFileSync(LOCAL, "utf8").includes("Criado pelo npm run dev")) {
-    fs.rmSync(LOCAL);
-    erro("Apaguei a senha salva. Rode \"npm run dev\" de novo e digite a senha do 'sa' DESTE computador.");
-  } else {
-    erro(`Corrija a senha em ${path.relative(RAIZ, LOCAL)} e rode "npm run dev" de novo.`);
-  }
-  erro("Não sabe a senha? Em computadores da escola, peça ao professor ou ao técnico do laboratório. No seu computador,");
-  erro("o script database/configurar-sqlserver.ps1 (executado como administrador) habilita o 'sa' e define uma nova senha.");
+  erro("O SQL Server recusou o login da API.");
+  try { fs.rmSync(CONFIG_BANCO); } catch { /* não existia */ }
+  erro("Apaguei a configuração salva do banco. Rode \"npm run dev\" de novo para refazer a detecção.");
   encerrar();
   process.exit(1);
 }
@@ -154,19 +246,8 @@ if (!apenasSite && !apiJaRodando) {
   envApi.JAVA_TOOL_OPTIONS = `${envApi.JAVA_TOOL_OPTIONS || ""} -Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8`.trim();
   info(`Java: ${java}`);
 
-  // 2. SQL Server
-  if (!(await portaAberta(1433))) {
-    sair("SQL Server não respondeu na porta 1433. Verifique se o serviço está iniciado e se o TCP/IP está habilitado (veja database/configurar-sqlserver.ps1).");
-  }
-
-  // 3. Senha do banco
-  if (!envApi.APROVEST_DB_PASSWORD && !fs.existsSync(LOCAL)) {
-    info("Primeira execução: informe a senha do usuário 'sa' do SQL Server.");
-    const senha = (await pergunta("Senha do sa: ", true)).trim();
-    if (!senha) sair("Senha não informada.");
-    fs.writeFileSync(LOCAL, `# Configuração local (NÃO versionar). Criado pelo npm run dev.\nspring.datasource.password=${senha}\n`, "utf8");
-    info("Senha salva em aprovest-api/src/main/resources/application-local.properties (arquivo fora do Git).");
-  }
+  // 2 e 3. SQL Server: descobre a instância e o login que funcionam neste computador
+  await prepararBanco();
 
   // 4. Porta 8080 ocupada por outro programa?
   if (await portaAberta(PORTA_API)) sair(`A porta ${PORTA_API} está ocupada por outro programa. Feche-o e rode "npm run dev" de novo.`);

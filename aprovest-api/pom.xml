@@ -99,10 +99,38 @@
 					</annotationProcessorPaths>
 				</configuration>
 			</plugin>
+			<!-- Autenticação do Windows no SQL Server: o driver JDBC precisa da DLL nativa mssql-jdbc_auth
+			     (mesma versão do driver). Ela é baixada do Maven Central e copiada para target/native. -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copiar-dll-autenticacao-windows</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.microsoft.sqlserver</groupId>
+									<artifactId>mssql-jdbc_auth</artifactId>
+									<version>13.2.1.x64</version>
+									<type>dll</type>
+									<destFileName>mssql-jdbc_auth-13.2.1.x64.dll</destFileName>
+								</artifactItem>
+							</artifactItems>
+							<outputDirectory>${project.build.directory}/native</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
+					<jvmArguments>-Djava.library.path=${project.build.directory}/native</jvmArguments>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>

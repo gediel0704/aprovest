@@ -54,26 +54,39 @@ npm install
 npm run dev
 ```
 
-O `npm run dev` faz tudo sozinho:
+(`npm run dev:all` faz exatamente o mesmo.)
 
-1. localiza o Java 21, mesmo que o terminal tenha sido aberto antes da instalação;
-2. confere se o SQL Server está respondendo na porta 1433;
-3. na primeira vez, pede a senha do usuário `sa` e grava em `aprovest-api/src/main/resources/application-local.properties` (arquivo fora do Git);
-4. sobe a API; se o banco `aprovestdb` não existir, a API o cria com os scripts da pasta `database`;
-5. sobe o site e abre `http://localhost:5173` no navegador quando tudo estiver pronto.
+O `npm run dev` prepara tudo sozinho, em qualquer computador com Windows:
+
+1. **Java:** localiza o Java 21, mesmo que o terminal tenha sido aberto antes da instalação.
+2. **SQL Server:** descobre as instâncias instaladas (padrão `MSSQLSERVER` ou nomeadas, como `SQLEXPRESS`), confere se o serviço está rodando e qual porta TCP cada uma usa.
+3. **Login no banco, sem configurar nada:**
+   - primeiro tenta a **autenticação do Windows** (o usuário logado), sem senha;
+   - se ela não tiver acesso, tenta a senha do `sa` já salva;
+   - só então pede a senha do `sa`, testando cada tentativa antes de subir a API.
+   A escolha fica salva em `C:Users<usuário>.aprovestanco.json` e vale para qualquer cópia do projeto nesse computador, sem perguntar de novo.
+4. **Banco:** se o `aprovestdb` não existir, a API o cria com os scripts da pasta `database`.
+5. **Site:** sobe o site e abre `http://localhost:5173` quando a API já está lendo o banco.
 
 A primeira execução demora alguns minutos, porque baixa as dependências do Java e cria o banco. Para encerrar, pressione **Ctrl+C**.
 
-Contas de teste criadas automaticamente: `aluno@aprovest.com.br`, `corretor@aprovest.com.br`, `admin@aprovest.com.br` e a aluna de demonstração `mariana.souza@demo.aprovest.com.br`. A senha padrão está em `app.seed.senha-padrao` (no `application.properties`).
+Contas de teste criadas automaticamente: `aluno@aprovest.com.br`, `corretor@aprovest.com.br` e `admin@aprovest.com.br` (senha padrão em `app.seed.senha-padrao`, no `application.properties`).
 
-**Opcionais:** defina `ANTHROPIC_API_KEY` para a correção por IA com o Claude (sem chave, o sistema usa o corretor offline, sempre identificado como tal) e `APROVEST_GOOGLE_CLIENT_ID` para o login com Google.
+**Opcionais:** `ANTHROPIC_API_KEY` para a correção por IA com o Claude (sem chave, o sistema usa o corretor offline, sempre identificado como tal) e `APROVEST_GOOGLE_CLIENT_ID` para o login com Google.
 
-**Problemas comuns**
+**Se o `npm run dev` parar com uma mensagem**
 
-- **Java 21 não encontrado:** instale com `winget install Microsoft.OpenJDK.21`.
-- **SQL Server não respondeu na porta 1433:** inicie o serviço do SQL Server e habilite o TCP/IP e a autenticação SQL (o script `database/configurar-sqlserver.ps1`, executado como administrador, faz isso).
-- **Login failed for user sa:** a senha está errada. Apague o arquivo `application-local.properties` e rode `npm run dev` de novo para digitá-la outra vez.
-- **Porta 8080 ou 5173 ocupada:** feche o outro programa que está usando a porta (ou o outro terminal com o projeto rodando).
+| Mensagem | O que fazer |
+|---|---|
+| Java 21 não encontrado | Instale com `winget install Microsoft.OpenJDK.21`. |
+| Nenhum SQL Server foi encontrado | Instale o SQL Server 2019 ou superior (Developer ou Express). |
+| O serviço está parado | Inicie o serviço do SQL Server (Serviços do Windows ou SQL Server Configuration Manager). |
+| TCP/IP desligado | A API Java só conecta por TCP. Como administrador: `powershell -ExecutionPolicy Bypass -File database\configurar-sqlserver.ps1 -Instancia NOME` (o nome aparece na mensagem). Esse script também ativa o login misto e, se você quiser, o `sa`. |
+| Não foi possível entrar no SQL Server | O usuário do Windows não tem acesso e a senha do `sa` não foi aceita. Use a senha do `sa` desse computador ou peça a quem administra o SQL Server para liberar o seu usuário. |
+| O banco não existe e o login não pode criá-lo | Execute no SSMS os scripts `database/01`, `02` e `03`, nessa ordem, com um login administrador. |
+| Porta 8080 ou 5173 ocupada | Feche o outro programa ou o outro terminal com o projeto rodando. |
+
+Para refazer a detecção do banco do zero, apague o arquivo `C:Users<usuário>.aprovestanco.json`.
 
 ### Jeito manual (cada parte separada)
 
