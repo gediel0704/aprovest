@@ -3,7 +3,8 @@
 -- Projeto de TCC - Técnico em Informática (INF2CM) - FIEB / ITB Brasílio Flores de Azevedo
 -- Execute este arquivo inteiro no SQL Server Management Studio (SSMS)
 -- ou pelo terminal:  sqlcmd -S localhost -E -C -i 01_aprovest_banco.sql
--- Depois execute 02_dados_base.sql e 03_questoes_oficiais.sql.
+-- Depois execute 02_taxonomia_e_questoes_oficiais.sql e 03_temas_e_materiais.sql.
+-- (Ao rodar "npm run dev", a API cria o banco sozinha se ele não existir.)
 -- =====================================================================
 
 USE master;

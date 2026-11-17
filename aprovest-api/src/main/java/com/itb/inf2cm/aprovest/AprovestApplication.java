@@ -17,7 +17,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class AprovestApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AprovestApplication.class, args);
+		SpringApplication app = new SpringApplication(AprovestApplication.class);
+		// Na primeira execução, cria o banco aprovestdb com os scripts da pasta /database
+		app.addListeners(new com.itb.inf2cm.aprovest.config.CriadorBanco());
+		app.run(args);
 	}
 
 }

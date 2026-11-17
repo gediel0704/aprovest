@@ -19,6 +19,7 @@ AproVest/
 ├── aprovest-api/      Back-end: Java 21 + Spring Boot 4 + Spring Security (JWT) + JPA + SQL Server
 ├── aprovest-web/      Front-end: React + Vite + JavaScript + Bootstrap + CSS Modules
 ├── database/          Scripts do Microsoft SQL Server e importadores das questões oficiais
+├── scripts/           iniciar.mjs: usado pelo "npm run dev" para subir banco, API e site juntos
 ```
 
 A estrutura segue o modelo do professor: no front, as páginas ficam em `pages/NomeDaPagina/NomeDaPagina.jsx` + `.module.css`, com `components/`, `routes/AppRoutes.jsx` e `services/api.js` (axios); no back, os pacotes são `auth`, `config`, `controller`, `dto`, `exceptions`, `model/entity`, `model/enums`, `model/repository`, `model/services` e `security`.
@@ -44,57 +45,41 @@ Só entram no banco as questões 100% textuais: itens que dependem de figura, gr
 - Java 21 (JDK)
 - Node.js 20 ou superior
 
-### 1. Banco de dados
+### Jeito rápido (recomendado)
 
-No SQL Server Management Studio, abra e execute **em ordem**:
-
-1. `database/01_aprovest_banco.sql` - cria o banco `aprovestdb` e as 31 tabelas
-2. `database/02_taxonomia_e_questoes_oficiais.sql` - vestibulares, disciplinas, tópicos e 829 questões oficiais
-3. `database/03_temas_e_materiais.sql` - temas de redação, fontes oficiais e resumos
-4. `database/04_backup_diario.sql` - (opcional) job de backup diário com retenção de 30 dias
-
-### 2. Back-end (API)
-
-Copie `aprovest-api/src/main/resources/application-local.properties.example` para `application-local.properties` (esse arquivo não vai para o Git) e coloque nele a senha do seu SQL Server. Também é possível usar as variáveis `APROVEST_DB_USER` e `APROVEST_DB_PASSWORD`. Depois, no terminal:
+Na pasta do projeto (ou dentro de `aprovest-web`), rode:
 
 ```
-cd aprovest-api
-.\mvnw.cmd spring-boot:run
-```
-
-No PowerShell (terminal padrão do VS Code no Windows) o comando precisa do `.\` no início. No Prompt de Comando (cmd) use `mvnw.cmd spring-boot:run` e no Git Bash use `./mvnw spring-boot:run`. A API está pronta quando aparecer `Started AprovestApplication` no terminal.
-
-A API sobe em `http://localhost:8080/api/v1` (teste em `http://localhost:8080/api/v1/index`).
-
-Na primeira execução são criadas as contas de teste `admin@aprovest.com.br`, `corretor@aprovest.com.br` e `aluno@aprovest.com.br`. A senha está em `app.seed.senha-padrao`. Também são criados 12 alunos de demonstração (`@demo.aprovest.com.br`) com simulados respondidos, para que o percentil e o ranking tenham com quem comparar.
-
-**Correção por IA (opcional):** defina a variável de ambiente `ANTHROPIC_API_KEY` com sua chave da Anthropic antes de iniciar a API. Sem chave, o sistema usa o corretor automático offline (estimativa por regras), sempre identificado como tal.
-
-**Login com Google (opcional):** defina `APROVEST_GOOGLE_CLIENT_ID` com um OAuth Client ID do tipo Web.
-
-### 3. Front-end
-
-```
-cd aprovest-web
 npm install
 npm run dev
 ```
 
-Acesse `http://localhost:5173`.
+O `npm run dev` faz tudo sozinho:
 
-### Rodando no VS Code
+1. localiza o Java 21, mesmo que o terminal tenha sido aberto antes da instalação;
+2. confere se o SQL Server está respondendo na porta 1433;
+3. na primeira vez, pede a senha do usuário `sa` e grava em `aprovest-api/src/main/resources/application-local.properties` (arquivo fora do Git);
+4. sobe a API; se o banco `aprovestdb` não existir, a API o cria com os scripts da pasta `database`;
+5. sobe o site e abre `http://localhost:5173` no navegador quando tudo estiver pronto.
 
-1. Abra a pasta `AproVest` no VS Code (Arquivo > Abrir Pasta).
-2. Abra um terminal (Terminal > Novo Terminal) e suba a API com `cd aprovest-api` e `.\mvnw.cmd spring-boot:run`. Deixe esse terminal aberto.
-3. Abra um **segundo** terminal (botão `+` do painel) e suba o site com `cd aprovest-web`, `npm install` (só na primeira vez) e `npm run dev`.
-4. Abra `http://localhost:5173` no navegador.
+A primeira execução demora alguns minutos, porque baixa as dependências do Java e cria o banco. Para encerrar, pressione **Ctrl+C**.
 
-Problemas comuns:
+Contas de teste criadas automaticamente: `aluno@aprovest.com.br`, `corretor@aprovest.com.br`, `admin@aprovest.com.br` e a aluna de demonstração `mariana.souza@demo.aprovest.com.br`. A senha padrão está em `app.seed.senha-padrao` (no `application.properties`).
 
-- **`JAVA_HOME` não definido:** feche e abra o VS Code depois de instalar o Java 21, para o terminal enxergar a variável. Confira com `java -version`.
-- **`Port 8080 was already in use`:** já existe uma API rodando. Feche o outro terminal ou finalize o processo `java`.
-- **`Login failed for user sa`:** a senha em `application-local.properties` não confere com a do SQL Server.
-- **O site abre mas não carrega dados:** a API não está rodando ou ainda não terminou de subir.
+**Opcionais:** defina `ANTHROPIC_API_KEY` para a correção por IA com o Claude (sem chave, o sistema usa o corretor offline, sempre identificado como tal) e `APROVEST_GOOGLE_CLIENT_ID` para o login com Google.
+
+**Problemas comuns**
+
+- **Java 21 não encontrado:** instale com `winget install Microsoft.OpenJDK.21`.
+- **SQL Server não respondeu na porta 1433:** inicie o serviço do SQL Server e habilite o TCP/IP e a autenticação SQL (o script `database/configurar-sqlserver.ps1`, executado como administrador, faz isso).
+- **Login failed for user sa:** a senha está errada. Apague o arquivo `application-local.properties` e rode `npm run dev` de novo para digitá-la outra vez.
+- **Porta 8080 ou 5173 ocupada:** feche o outro programa que está usando a porta (ou o outro terminal com o projeto rodando).
+
+### Jeito manual (cada parte separada)
+
+1. **Banco:** execute no SQL Server Management Studio, em ordem, `database/01_aprovest_banco.sql`, `02_taxonomia_e_questoes_oficiais.sql` e `03_temas_e_materiais.sql` (`04_backup_diario.sql` é opcional). Esse passo é dispensável, porque a API cria o banco sozinha.
+2. **API:** copie `application-local.properties.example` para `application-local.properties` e coloque a senha do SQL Server. Depois, no PowerShell: `cd aprovest-api` e `.\mvnw.cmd spring-boot:run` (no cmd: `mvnw.cmd spring-boot:run`; no Git Bash: `./mvnw spring-boot:run`). Ela sobe em `http://localhost:8080/api/v1`.
+3. **Site:** `cd aprovest-web` e `npm run dev:web`. Ele sobe em `http://localhost:5173`.
 
 ## Principais funcionalidades
 
