@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node ../scripts/iniciar.mjs",
-    "dev:all": "node ../scripts/iniciar.mjs",
+    "dev": "node scripts/dev.mjs",
+    "dev:all": "node scripts/dev.mjs",
     "dev:web": "vite",
     "build": "vite build",
     "lint": "oxlint",
